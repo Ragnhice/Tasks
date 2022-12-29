@@ -3,7 +3,38 @@ import pytest
 import inspect
 
 
-######### Вар1
+ ######### Вар1 item.stash.
+
+been_start_time = pytest.StashKey[bool]()
+start_time = pytest.StashKey[str]()
+name_test_started = pytest.StashKey[str]()
+
+
+@pytest.hookimpl(tryfirst=True)
+@pytest.hookspec(firstresult=True)
+def pytest_runtest_setup(item: pytest.Item) -> None:                # includes obtaining the values of fixtures required by the item
+    item.stash[been_start_time] = True
+    item.stash[start_time] = datetime.datetime.now()
+
+
+@pytest.hookspec(firstresult=True)
+def pytest_runtest_logstart(nodeid, location, item: pytest.Item):     #location = (filename, lineno, testname)
+    if item.stash[been_start_time]:                                   # возможно ли location передать в другой хук?
+        item.stash[name_test_started] = location[2]
+
+
+@pytest.hookimpl(trylast=True)
+def pytest_runtest_teardown(item: pytest.Item) -> None:            # includes running the teardown phase of fixtures required by the item
+    stop_time = datetime.datetime.now()
+    if item.stash[been_start_time]:
+        test_duration = (stop_time - item.stash[start_time]).total_seconds()
+        if test_duration > 7:
+            print(f"Длительность теста {item.stash[name_test_started]} {test_duration} секунд первышает 7 секунд")
+
+
+
+
+######### Вар2 Обертка
 @pytest.hookimpl(hookwrapper=True)
 def pytest_runtest_call(item):
     global start_time
@@ -25,10 +56,7 @@ def pytest_runtest_logfinish(nodeid, location):
 
 
 
-
-
-
- ######### Вар2
+ ######### Вар3
 @pytest.hookimpl(tryfirst=True)
 @pytest.hookspec(firstresult=True)
 def pytest_runtest_call(item):                # хук pytest_runtest_call - Вызывается для запуска теста
@@ -46,7 +74,8 @@ def pytest_runtest_logfinish(nodeid, location, request):            # хук В�
 
 
 
-#### Вар3 неправильный
+
+#### Вар4 неправильный
 @pytest.fixture(scope="function", autouse=True)
 def check_duration(request):
     """
