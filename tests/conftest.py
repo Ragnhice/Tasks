@@ -3,22 +3,50 @@ import pytest
 import inspect
 
 
+######### Вар1
+@pytest.hookimpl(hookwrapper=True)
+def pytest_runtest_call(item):
+    global start_time
+    start_time = datetime.datetime.now()
 
+    outcome = yield
+
+    location,stop_time = outcome.get_result()
+    test_duration = (stop_time - start_time).total_seconds()
+    if test_duration > 7:
+         print(f"Длительность теста {location[2]} {test_duration} секунд первышает 7 секунд")
+
+
+@pytest.hookimpl(trylast=True)
+def pytest_runtest_logfinish(nodeid, location):
+    stop_time = datetime.datetime.now()
+    return (location,stop_time)
+
+
+
+
+
+
+
+ ######### Вар2
+@pytest.hookimpl(tryfirst=True)
 @pytest.hookspec(firstresult=True)
 def pytest_runtest_call(item):                # хук pytest_runtest_call - Вызывается для запуска теста
     global start_time
     start_time = datetime.datetime.now()
-
                                      #location = (filename, lineno, testname)
+
+@pytest.hookimpl(trylast=True)
 def pytest_runtest_logfinish(nodeid, location, request):            # хук Вызывается в конце выполнения протокола runtest
     stop_time = datetime.datetime.now()
     test_duration = (stop_time - start_time).total_seconds()
     if test_duration > 7:
         print(f"Длительность теста {request.node.name} {test_duration} секунд первышает 7 секунд")
+        #print(f"Длительность теста {location[2]} {test_duration} секунд первышает 7 секунд")
 
 
 
-
+#### Вар3 неправильный
 @pytest.fixture(scope="function", autouse=True)
 def check_duration(request):
     """
