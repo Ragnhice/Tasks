@@ -3,33 +3,32 @@ import pytest
 import inspect
 
 
- ######### Вар1 item.stash.
+ ######### Вар1 item.stash
 
 been_start_time = pytest.StashKey[bool]()
 start_time = pytest.StashKey[str]()
 name_test_started = pytest.StashKey[str]()
+message = pytest.StashKey[str]()  #Общее сообщение для сессии после того как все тесты пройдут
 
+def pytest_sessionfinish(session: pytest.Session, exitstatus):
+   if session[message]:
+       print("Длительность следующих тестов первышает 7 секунд: " + session[message])
 
-@pytest.hookimpl(tryfirst=True)
-@pytest.hookspec(firstresult=True)
 def pytest_runtest_setup(item: pytest.Item) -> None:                # includes obtaining the values of fixtures required by the item
     item.stash[been_start_time] = True
     item.stash[start_time] = datetime.datetime.now()
 
-
-@pytest.hookspec(firstresult=True)
 def pytest_runtest_logstart(nodeid, location, item: pytest.Item):     #location = (filename, lineno, testname)
     if item.stash[been_start_time]:                                   # возможно ли location передать в другой хук?
         item.stash[name_test_started] = location[2]
 
-
-@pytest.hookimpl(trylast=True)
-def pytest_runtest_teardown(item: pytest.Item) -> None:            # includes running the teardown phase of fixtures required by the item
+def pytest_runtest_teardown(item: pytest.Item,session: pytest.Session) -> None:            # includes running the teardown phase of fixtures required by the item
     stop_time = datetime.datetime.now()
     if item.stash[been_start_time]:
         test_duration = (stop_time - item.stash[start_time]).total_seconds()
         if test_duration > 7:
-            print(f"Длительность теста {item.stash[name_test_started]} {test_duration} секунд первышает 7 секунд")
+            session[message] += f"Тест {item.stash[name_test_started]} : {test_duration} секунд "
+
 
 
 
