@@ -3,7 +3,27 @@ import pytest
 import inspect
 
 
- ######### Вар1 item.stash
+def pytest_generate_tests(metafunc):
+    """
+    Проверяет наличие документации у методов классов по имени модуля
+
+    :param data: metafunc Тестовая функция.
+
+    """
+    module_classes = {}
+    for key, data in inspect.getmembers(metafunc.module, inspect.isclass):
+        module_classes[key] = data
+
+    for class_item in module_classes.keys():
+        class_functions = inspect.getmembers(metafunc.module.class_item, inspect.isfunction)
+        for function_item in class_functions:
+            assert inspect.getdoc(metafunc.module.class_item.function_item[0]), (
+                f"Нет  документации у метода {function_item[0]} в классе {class_item}")
+
+
+
+
+ #Вар1 item.stash
 
 been_start_time = pytest.StashKey[bool]()
 start_time = pytest.StashKey[str]()
@@ -33,7 +53,7 @@ def pytest_runtest_teardown(item: pytest.Item,session: pytest.Session) -> None: 
 
 
 
-######### Вар2 Обертка
+#Вар2 Обертка
 @pytest.hookimpl(hookwrapper=True)
 def pytest_runtest_call(item):
     global start_time
@@ -55,7 +75,7 @@ def pytest_runtest_logfinish(nodeid, location):
 
 
 
- ######### Вар3
+ #Вар3
 @pytest.hookimpl(tryfirst=True)
 @pytest.hookspec(firstresult=True)
 def pytest_runtest_call(item):                # хук pytest_runtest_call - Вызывается для запуска теста
@@ -74,7 +94,7 @@ def pytest_runtest_logfinish(nodeid, location, request):            # хук В�
 
 
 
-#### Вар4 неправильный
+# Вар4 неправильный
 @pytest.fixture(scope="function", autouse=True)
 def check_duration(request):
     """
