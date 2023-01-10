@@ -4,7 +4,7 @@ import pytest
 
 
 @pytest.mark.test_case("test_case_")
-@pytest.mark.parametrize("time", list(range(0, 5)))
+@pytest.mark.parametrize("time", list(range(7, 10)))
 def test_time(time):
     sleep(time)
 

@@ -1,6 +1,6 @@
+import os
 from pathlib import Path
 from _pytest.runner import runtestprotocol
-from _pytest.python import Metafunc
 
 import pytest
 import inspect
@@ -9,22 +9,17 @@ import importlib
 
 message = pytest.StashKey[str]()
 
-def pytest_runtest_protocol(item: pytest.Item, nextitem, session: pytest.Session):
+def pytest_runtest_protocol(item: pytest.Item, nextitem):
     reports = runtestprotocol(item, nextitem=nextitem)
     for report in reports:
         test_duration = 0
         if report.when == 'call' or report.when == 'setup' or report.when == 'teardown':
             test_duration += report.duration
-
         if test_duration > 7:
-            session[message] += f"Тест {item.stash[item.name]} : {test_duration} секунд"
-
-def pytest_sessionfinish(session: pytest.Session):
-   if session[message]:
-       print("Длительность следующих тестов первышает 7 секунд: " + session[message])
+            print(f"Длительность теста {item.name} первышает 7 секунд ({test_duration} секунд)")
 
 
-def pytest_generate_tests(metafunc: Metafunc) -> dict:
+def pytest_generate_tests(metafunc) -> dict:
     """
     Вызывается при сборке тестовой функции c маркером test_case
     Проверяет наличие документации у методов класса модуля проекта
@@ -33,27 +28,22 @@ def pytest_generate_tests(metafunc: Metafunc) -> dict:
 
     """
 
-    if 'test_case' not in metafunc.fixturenames:
+    if 'data' not in metafunc.fixturenames:
         return
-    path = Path("/Tasks/core")
 
-    def get_files_from_path(path):
+    project_path = Path.cwd().parent
+    module_path = Path(os.path.join(project_path, 'core'))
+
+    def get_files_from_path(module_path):
         files = []
-        for x in path.iterdir():
-            if x.is_dir():
-                files.append(get_files_from_path(path))
-            else:
-                if "__init__" not in str(x):
-                    files.append(x)
+        for x in module_path.iterdir():
+            if "__init__" not in str(x):
+                files.append(x)
         return files
 
-    files = get_files_from_path(path)
-
+    files = get_files_from_path(module_path)
     for file in files:
-        def load_from_module(module):
-            return importlib.import_module(module)  # получение тестовых данных
-
-        module = load_from_module(file)
+        module = importlib.import_module("core", path = file)
         module_classes = {}
         for key, data in inspect.getmembers(module, inspect.isclass):
             module_classes[key] = data
