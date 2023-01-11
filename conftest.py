@@ -1,3 +1,5 @@
+from random import randint
+from time import sleep
 import os
 from pathlib import Path
 from _pytest.runner import runtestprotocol
@@ -7,17 +9,43 @@ import inspect
 
 import importlib
 
- Задание №1
- тесты запускаются по 2 раза и их проходит 10,а не 5
- Результат по завершению всех тестов  не вывелся
+
+@pytest.fixture(scope="function", autouse=True)
+def wait_fixture():
+    sleep(randint(2, 3))
+    yield
+    sleep(randint(2, 3))
+
+def pytest_runtest_protocol(item: pytest.Item, nextitem):
+    reports = runtestprotocol(item, nextitem=nextitem)
+    time = 0
+    for report in reports:
+        if report.when == 'call' or report.when == 'setup' or report.when == 'teardown':
+            time += report.duration
+
+    item.stash[item.name] = time
+
+
+
+
+#Задание №1
+
+test_duration = pytest.StashKey[str]()
+
 def pytest_runtest_protocol(item):
     reports = runtestprotocol(item)
     for report in reports:
         test_duration = 0
         if report.when == 'call' or report.when == 'setup' or report.when == 'teardown':
             test_duration += report.duration
-        if test_duration > 1:
-            print(f"Длительность теста {item.name} первышает 1 секунду ({test_duration} секунд)")
+            if test_duration > 7:
+                item.stash[test_duration] = f"Длительность теста {item.name} первышает 7 секунд ({test_duration} секунд)"
+
+def pytest_sessionfinish(session):
+    for item in session.items:
+        if item.stash[test_duration]:
+             print(item.stash[test_duration])
+
 
 # Задание №2
 def pytest_generate_tests(metafunc) -> list:
