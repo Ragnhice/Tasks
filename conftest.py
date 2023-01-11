@@ -7,19 +7,20 @@ import inspect
 
 import importlib
 
-message = pytest.StashKey[str]()
-
-def pytest_runtest_protocol(item: pytest.Item, nextitem):
-    reports = runtestprotocol(item, nextitem=nextitem)
+ Задание №1
+ тесты запускаются по 2 раза и их проходит 10,а не 5
+ Результат по завершению всех тестов  не вывелся
+def pytest_runtest_protocol(item):
+    reports = runtestprotocol(item)
     for report in reports:
         test_duration = 0
         if report.when == 'call' or report.when == 'setup' or report.when == 'teardown':
             test_duration += report.duration
-        if test_duration > 7:
-            print(f"Длительность теста {item.name} первышает 7 секунд ({test_duration} секунд)")
+        if test_duration > 1:
+            print(f"Длительность теста {item.name} первышает 1 секунду ({test_duration} секунд)")
 
-
-def pytest_generate_tests(metafunc) -> dict:
+# Задание №2
+def pytest_generate_tests(metafunc) -> list:
     """
     Вызывается при сборке тестовой функции c маркером test_case
     Проверяет наличие документации у методов класса модуля проекта
@@ -54,10 +55,9 @@ def pytest_generate_tests(metafunc) -> dict:
             for method_item in class_methods:
                 if method_item[0].startswith("__"):
                     continue
-                if not inspect.getdoc(method_item[1]):
-                    data = {}
-                    data["doc"] = "Нет документации"
-                    data["method"] = method_item[0]
-                    data["class"] = str(class_item).split(".")[-1]
-                    test_data.append(data)
+                data = {}
+                data["method"] = method_item[0]
+                data["class"] = str(class_item).split(".")[-1][:-2]
+                data["doc"] = inspect.getdoc(method_item[1])
+                test_data.append(data)
     metafunc.parametrize("data", test_data)
