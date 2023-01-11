@@ -12,11 +12,11 @@ class User:
         """
         return self.name
 
-    @property
+    #@property
     def get_age(self):
-        """
-        Метод возвращающий возраст
-
-        :return:
-        """
+        #"""
+        #Метод возвращающий возраст
+#
+        #:return:
+        #"""
         return self.age

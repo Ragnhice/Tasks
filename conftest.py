@@ -41,6 +41,7 @@ def pytest_generate_tests(metafunc) -> dict:
                 files.append(x)
         return files
 
+    test_data = []
     files = get_files_from_path(module_path)
     for file in files:
         name_module = (str(file).split("\\")[-1]).split(".")[0]
@@ -48,9 +49,8 @@ def pytest_generate_tests(metafunc) -> dict:
         module_classes = {}
         for key, value in inspect.getmembers(module, inspect.isclass):
             module_classes[key] = value
-        test_data = []
         for class_item in module_classes.values():
-            class_methods = inspect.getmembers(module.class_item, inspect.isfunction)
+            class_methods = inspect.getmembers(class_item, inspect.isfunction)
             for method_item in class_methods:
                 if method_item[0].startswith("__"):
                     continue
@@ -60,4 +60,4 @@ def pytest_generate_tests(metafunc) -> dict:
                     data["method"] = method_item[0]
                     data["class"] = str(class_item).split(".")[-1]
                     test_data.append(data)
-        metafunc.parametrize("data", test_data)
+    metafunc.parametrize("data", test_data)
