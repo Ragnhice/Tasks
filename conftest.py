@@ -30,9 +30,9 @@ def pytest_generate_tests(metafunc) -> dict:
 
     if 'data' not in metafunc.fixturenames:
         return
-
+    pakage_name = "core"
     project_path = Path.cwd().parent
-    module_path = Path(os.path.join(project_path, 'core'))
+    module_path = Path(os.path.join(project_path, pakage_name))
 
     def get_files_from_path(module_path):
         files = []
@@ -43,16 +43,21 @@ def pytest_generate_tests(metafunc) -> dict:
 
     files = get_files_from_path(module_path)
     for file in files:
-        module = importlib.import_module("core", path = file)
+        name_module = (str(file).split("\\")[-1]).split(".")[0]
+        module = importlib.import_module(pakage_name + "." + name_module)
         module_classes = {}
-        for key, data in inspect.getmembers(module, inspect.isclass):
-            module_classes[key] = data
-
-        for class_item in module_classes.keys():
-            class_methods = inspect.getmembers(module.class_item, inspect.ismethod)
-            for function_item in class_methods:
-                if not inspect.getdoc(module.class_item.function_item[0]):
+        for key, value in inspect.getmembers(module, inspect.isclass):
+            module_classes[key] = value
+        test_data = []
+        for class_item in module_classes.values():
+            class_methods = inspect.getmembers(module.class_item, inspect.isfunction)
+            for method_item in class_methods:
+                if method_item[0].startswith("__"):
+                    continue
+                if not inspect.getdoc(method_item[1]):
+                    data = {}
                     data["doc"] = "Нет документации"
-                    data['method'] = function_item[0]
-                    data['class'] = class_item
-                    metafunc.parametrize("data", data)
+                    data["method"] = method_item[0]
+                    data["class"] = str(class_item).split(".")[-1]
+                    test_data.append(data)
+        metafunc.parametrize("data", test_data)
