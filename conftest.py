@@ -50,7 +50,7 @@ def pytest_generate_tests(metafunc) -> dict:
         for key, value in inspect.getmembers(module, inspect.isclass):
             module_classes[key] = value
         for class_item in module_classes.values():
-            class_methods = inspect.getmembers(class_item, inspect.isfunction)
+            class_methods = inspect.getmembers(class_item, inspect.ismethod(class_item))
             for method_item in class_methods:
                 if method_item[0].startswith("__"):
                     continue
