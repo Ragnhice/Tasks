@@ -18,7 +18,7 @@ def wait_fixture():
 
 
 #Задание №1
-
+test_duration_over = pytest.StashKey[bool]()
 test_duration = pytest.StashKey[str]()
 
 def pytest_runtest_protocol(item):
@@ -28,11 +28,12 @@ def pytest_runtest_protocol(item):
         if report.when == 'call' or report.when == 'setup' or report.when == 'teardown':
             test_duration += report.duration
             if test_duration > 1:
+                item.stash[test_duration_over] = True
                 item.stash[test_duration] = f"Длительность теста {item.name} првышает 1 секунд ({test_duration} секунд)"
 
 def pytest_sessionfinish(session):
     for item in session.items:
-        if item.stash[test_duration]:
+        if item.stash[test_duration_over]:
              print(item.stash[test_duration])
 
 
