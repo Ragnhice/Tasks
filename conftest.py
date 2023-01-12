@@ -18,38 +18,50 @@ def wait_fixture():
 
 
 #Задание №1
-test_duration_over = pytest.StashKey[bool]()
-test_duration = pytest.StashKey[str]()
 
-def pytest_runtest_protocol(item: pytest.Item, nextitem):
-    reports = runtestprotocol(item, nextitem=nextitem)
-    for report in reports:
-        test_duration = 0
-        if report.when == 'call' or report.when == 'setup' or report.when == 'teardown':
-            test_duration += report.duration
-            if test_duration > 1:
-                item.stash[test_duration_over] = True
-                item.stash[test_duration] = f"Длительность теста {item.name} првышает 1 секунду ({test_duration} секунд)"
-
-def pytest_sessionfinish(session):
-    for item in session.items:
-        if item.stash[test_duration_over]:
-             print(item.stash[test_duration])
+#Недоделанное решение
+#test_duration_over = pytest.StashKey[bool]()
+#test_duration = pytest.StashKey[str]()
+#
+#def pytest_runtest_protocol(item: pytest.Item, nextitem):
+#    reports = runtestprotocol(item, nextitem=nextitem)
+#    for report in reports:
+#        test_duration = 0
+#        if report.when == 'call' or report.when == 'setup' or report.when == 'teardown':
+#            test_duration += report.duration
+#            if test_duration > 1:
+#                item.stash[test_duration_over] = True
+#                item.stash[test_duration] = f"Длительность теста {item.name} првышает 1 секунду ({test_duration} секунд)"
+#
+#def pytest_sessionfinish(session):
+#    for item in session.items:
+#        if item.stash[test_duration_over]:
+#             print(item.stash[test_duration])
 
 
 # Правильное решение
 def pytest_report_teststatus(report, config):
     duration = config.stash.get(report.nodeid.replace(":", "_"), 0)
+    # При каждом изменении  статуса теста в переменной
+    # report.nodeid фисируется значение report.duration + то ,что уже было в report.nodeid
+    # Это и будет время прохождения всех статусов тестом
     config.stash[report.nodeid.replace(":", "_")] = report.duration + duration
 
 
 def pytest_sessionfinish(session):
     for item in session.items:
         duration = session.config.stash.get(item.nodeid.replace(":", "_"), 0)
+        #Забираем то, что сложилось в nodeid через session.config в перемунную duration для читабельности
+        # config общий для сессии и хука teststatus
         if duration > 7:
-            print(item.nodeid, session.config.stash.get(item.nodeid.replace(":", "_"), 0))
+            print(item.nodeid, session.config.stash.get(item.nodeid.replace(":", "_"), 0))  # 2ой параметр -это duration
 
 
+#  config объект конфигурации pytest.
+#  stash хранилище информации о конфигурации
+#  get получить значение по ключу
+#  item.nodeid == report.nodeid  id теста
+#  replace(":", "_")  замена в адресе элмента ":" на "_". item.nodeid это адрес? Тогда откуда берется длительность?
 
 
 # Задание №2
