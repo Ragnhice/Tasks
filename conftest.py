@@ -16,17 +16,6 @@ def wait_fixture():
     yield
     sleep(randint(2, 3))
 
-def pytest_runtest_protocol(item: pytest.Item, nextitem):
-    reports = runtestprotocol(item, nextitem=nextitem)
-    time = 0
-    for report in reports:
-        if report.when == 'call' or report.when == 'setup' or report.when == 'teardown':
-            time += report.duration
-
-    item.stash[item.name] = time
-
-
-
 
 #Задание №1
 
@@ -38,8 +27,8 @@ def pytest_runtest_protocol(item):
         test_duration = 0
         if report.when == 'call' or report.when == 'setup' or report.when == 'teardown':
             test_duration += report.duration
-            if test_duration > 7:
-                item.stash[test_duration] = f"Длительность теста {item.name} первышает 7 секунд ({test_duration} секунд)"
+            if test_duration > 1:
+                item.stash[test_duration] = f"Длительность теста {item.name} првышает 1 секунд ({test_duration} секунд)"
 
 def pytest_sessionfinish(session):
     for item in session.items:
