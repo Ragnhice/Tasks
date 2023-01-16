@@ -64,7 +64,18 @@ def pytest_generate_tests(metafunc) -> list:
                 test_data.append(data)
     metafunc.parametrize("data", test_data)
 
-
+#короче
+def pytest_generate_tests(metafunc):
+    if "data" in metafunc.fixturenames:
+        test_data = []
+        files = [f"core.{x.rstrip('.py')}" for x in os.listdir("core") if x[0:2] != "__"]
+        for file_ in files:
+            inspect.getmembers(__import__(file_))
+        for name, module in [x for x in inspect.getmembers(__import__("core")) if x[0][0:2] != "__"]:
+            for class_name in [x for x in inspect.getmembers(module) if x[0][0:2] != "__"]:
+                for method in [x for x in inspect.getmembers(class_name[1]) if x[0][0:2] != "__"]:
+                    test_data.append({"class": class_name[0], "method": method[0], "doc": inspect.getdoc(method[1])})
+        metafunc.parametrize("data", test_data)
 
 #Задание №1
 
