@@ -79,7 +79,7 @@ def pytest_generate_tests(metafunc):
 
 #Задание №1
 
-#Недоделанное решение
+##Недоделанное решение
 #test_duration_over = pytest.StashKey[bool]()
 #test_duration = pytest.StashKey[str]()
 #
