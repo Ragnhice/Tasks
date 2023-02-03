@@ -10,13 +10,60 @@ import importlib
 import importlib.machinery
 
 
+
 @pytest.fixture(scope="function", autouse=True)
 def wait_fixture():
     sleep(randint(2, 3))
     yield
     sleep(randint(2, 3))
 
-# Задание №2
+
+
+def pytest_report_teststatus(report, config):
+    #этот хук выполняется 3 раза для каждого теста
+    duration = config.stash.get(report.nodeid.replace(":", "_"), 0)
+    #забираем значение по ключу (полное название теста, заменяя : на _, так как с : не записывается в stash),
+    # если такого ключа в stash нет, то оно равно 0
+
+    config.stash[report.nodeid.replace(":", "_")] = report.duration + duration
+    # При каждом изменении  статуса теста в переменной
+    # report.nodeid фисируется значение report.duration + то ,что уже было в report.nodeid
+    # Это и будет время прохождения всех статусов тестом
+
+def pytest_sessionfinish(session):
+    for item in session.items:
+        duration = session.config.stash.get(item.nodeid.replace(":", "_"), 0)
+        #Забираем то, что сложилось в nodeid через session.config в перемунную duration для читабельности
+        # config общий для сессии и хука teststatus
+        if duration > 7:
+            print(item.nodeid, session.config.stash.get(item.nodeid.replace(":", "_"), 0))  # 2ой параметр -это duration
+
+
+def pytest_addoption(parser):
+    """Declaring the command-line options for test run"""
+    parser.addoption("--api_healthcheck",
+                     action="store_true",
+                     default=False,
+                     help="start with checking api for ready to test")
+
+
+def pytest_sessionstart(session):
+    """Завершение тестовой сессии при наличии ConnectionError в ответе запроса"""
+    print("Тестовая сессия запущена")
+    if not session.config.getoption("--api_healthcheck"):
+        return
+
+    for i in range(4):
+        try:
+            ApiGatewayAdapter().query("startupVersion")   #адаптер ApiGatewayAdapter в библиотеке фреймворка
+        except exceptions.ConnectionError:                #exceptions также в библиотеке фреймворка
+            if i < 3:
+                sleep(20)
+        else:
+            print("Проверка API прошла успешно")
+            return
+    pytest.exit("API не готово к тестированию", returncode=1)
+
 def pytest_generate_tests(metafunc) -> list:
     """
     Вызывается при сборке тестовой функции c маркером test_case
@@ -63,65 +110,3 @@ def pytest_generate_tests(metafunc) -> list:
                 data["doc"] = inspect.getdoc(method_item[1])
                 test_data.append(data)
     metafunc.parametrize("data", test_data)
-
-#короче
-def pytest_generate_tests(metafunc):
-    if "data" in metafunc.fixturenames:
-        test_data = []
-        files = [f"core.{x.rstrip('.py')}" for x in os.listdir("core") if x[0:2] != "__"]
-        for file_ in files:
-            inspect.getmembers(__import__(file_))
-        for name, module in [x for x in inspect.getmembers(__import__("core")) if x[0][0:2] != "__"]:
-            for class_name in [x for x in inspect.getmembers(module) if x[0][0:2] != "__"]:
-                for method in [x for x in inspect.getmembers(class_name[1]) if x[0][0:2] != "__"]:
-                    test_data.append({"class": class_name[0], "method": method[0], "doc": inspect.getdoc(method[1])})
-        metafunc.parametrize("data", test_data)
-
-#Задание №1
-
-##Недоделанное решение
-#test_duration_over = pytest.StashKey[bool]()
-#test_duration = pytest.StashKey[str]()
-#
-#def pytest_runtest_protocol(item: pytest.Item, nextitem):
-#    reports = runtestprotocol(item, nextitem=nextitem)
-#    for report in reports:
-#        test_duration = 0
-#        if report.when == 'call' or report.when == 'setup' or report.when == 'teardown':
-#            test_duration += report.duration
-#            if test_duration > 1:
-#                item.stash[test_duration_over] = True
-#                item.stash[test_duration] = f"Длительность теста {item.name} првышает 1 секунду ({test_duration} секунд)"
-#
-#def pytest_sessionfinish(session):
-#    for item in session.items:
-#        if item.stash[test_duration_over]:
-#             print(item.stash[test_duration])
-
-
-# Правильное решение
-def pytest_report_teststatus(report, config):
-    #этот хук выполняется 3 раза для каждого теста
-    duration = config.stash.get(report.nodeid.replace(":", "_"), 0)
-    #забираем значение по ключу (полное название теста, заменяя : на _, так как с : не записывается в stash),
-    # если такого ключа в stash нет, то оно равно 0
-
-    config.stash[report.nodeid.replace(":", "_")] = report.duration + duration
-    # При каждом изменении  статуса теста в переменной
-    # report.nodeid фисируется значение report.duration + то ,что уже было в report.nodeid
-    # Это и будет время прохождения всех статусов тестом
-
-def pytest_sessionfinish(session):
-    for item in session.items:
-        duration = session.config.stash.get(item.nodeid.replace(":", "_"), 0)
-        #Забираем то, что сложилось в nodeid через session.config в перемунную duration для читабельности
-        # config общий для сессии и хука teststatus
-        if duration > 7:
-            print(item.nodeid, session.config.stash.get(item.nodeid.replace(":", "_"), 0))  # 2ой параметр -это duration
-        #stash, то это п
-
-#  config объект конфигурации pytest.
-#  stash хранилище информации о конфигурации, простой словарь, значение(duration) по ключу(полное название теста, где символы : изменены на _)
-#  get получить значение по ключу
-#  item.nodeid == report.nodeid  id теста
-#  replace(":", "_")  замена в адресе элмента ":" на "_". item.nodeid это адрес? Тогда откуда берется длительность?
