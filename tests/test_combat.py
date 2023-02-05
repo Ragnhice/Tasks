@@ -53,7 +53,6 @@ class TestJerboaCombat:
 
             assert message_from_redis["weaponMode"] == Hunter3D.WEAPON_MODE_COMBAT, (
                 "Ошибка установки режима боевого оружия в данных в канале Redis")
-            time.sleep(Hunter3D.TIMEOUT_HUNTER3D_SETTINGS)
 
         with aqas.pre_step("Отправка запроса shootingMode на backend, проверка установленных значений"):
             shooting_mode = ApiGatewayAdapter().query("shootingMode")
@@ -116,7 +115,6 @@ class TestJerboaCombat:
                 assert shooter_to_lane["laneNumber"] == 1, "Ошибка номера полосы"
             with aqas.step("Проверка номера упражнения"):
                 assert shooter_to_lane["exerciseId"] == Hunter3D.EX_ID, "Ошибка в номере упражнения"
-            time.sleep(Hunter3D.TIMEOUT_HUNTER3D_SETTINGS)
 
         with aqas.pre_step("Аутентификация администратором и переход на страницу управления полосами"):
             lanes_control_page = get_auth_admin()
