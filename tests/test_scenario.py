@@ -32,7 +32,7 @@ class TestScenario:
     """
 
     @allure.title("main_scenario_1_step")
-    @pytest.mark.test_case("https://jira.steor.tech/browse/VEGA2-430")
+    @pytest.mark.test_case("https://jira.---")
     def test_scenario_1_step(self):
         """Выбор и установка настроек тира."""
         with aqas.step("Аутентификация администратором и переход на страницу управления полосами"):
@@ -86,7 +86,7 @@ class TestScenario:
             assert lane_datas[0]["isBusy"] is False, "Ошибка, 1 полоса занята после устаовки новых настроек тира"
 
     @allure.title("main_scenario_2_step")
-    @pytest.mark.test_case("https://jira.steor.tech/browse/VEGA2-470")
+    @pytest.mark.test_case("https://jira.---")
     def test_scenario_2_step(self, go_lane1):
         """Выбор и установка упражнения."""
 
@@ -140,7 +140,7 @@ class TestScenario:
             assert lane1_control_page.is_wait_for_form_load(), "Страница не загрузилась"
 
     @allure.title("main_scenario_3_step")
-    @pytest.mark.test_case("https://jira.steor.tech/browse/VEGA2-471")
+    @pytest.mark.test_case("https://jira.---")
     def test_scenario_3_step(self, go_lane1):
         """Выбор и установка условий на полосе."""
 
@@ -238,7 +238,7 @@ class TestScenario:
             assert lane1_control_page.is_wait_for_form_load(), "Страница не загрузилась"
 
     @allure.title("main_scenario_4_step")
-    @pytest.mark.test_case("https://jira.steor.tech/browse/VEGA2-472")
+    @pytest.mark.test_case("https://jira.---)
     def test_scenario_4_step(self, go_lane1):
         """Выбор и установка стрелка на полосе ."""
 
@@ -287,7 +287,7 @@ class TestScenario:
             assert lane1_control_page.is_wait_for_form_load(), "Страница не загрузилась"
 
     @allure.title("main_scenario_5_step")
-    @pytest.mark.test_case("https://jira.steor.tech/browse/VEGA2-473")
+    @pytest.mark.test_case("https://jira.---")
     def test_scenario_5_step(self, go_lane1):  # noqa: CFQ001
         """Проверка запуска и остановки упражнения."""
 

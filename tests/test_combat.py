@@ -183,7 +183,7 @@ class TestJerboaCombat:
 
     @pytest.mark.usefixtures("start_browser")
     @allure.title("jerboa_combat_miss")
-    @pytest.mark.test_case("https://jira.steor.tech/browse/VEGA2-671")
+    @pytest.mark.test_case("https://jira.---")
     def test_jearboa_combat_miss(self, prepare_exercise_api):  # noqa: CFQ001
         """
         Проверка передачи данных о выстреле из боевого оружия с широким размером экрана
@@ -280,7 +280,7 @@ class TestJerboaCombat:
 
     @pytest.mark.usefixtures("start_browser")
     @allure.title("jearboa_combat_hit")
-    @pytest.mark.test_case("https://jira.steor.tech/browse/VEGA2-670")
+    @pytest.mark.test_case("https://jira.---")
     def test_jearboa_combat_hit(self, prepare_exercise_api):  # noqa: CFQ001
         """
         Проверка передачи данных о выстреле из боевого оружия с широким размером экрана
@@ -375,7 +375,7 @@ class TestJerboaCombat:
 
     @pytest.mark.usefixtures("start_browser")
     @allure.title("combat_miss_hit_hit")
-    @pytest.mark.test_case("https://jira.steor.tech/browse/VEGA2-719")
+    @pytest.mark.test_case("https://jira.---")
     def test_combat_miss_hit_hit(self, prepare_exercise_api):   # noqa: CFQ001
         """
             Проверка передачи данных о двух выстрелах из боеого оружия с широким размером экрана

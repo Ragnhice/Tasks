@@ -32,7 +32,7 @@ class TestsCrudExercise:
     TAG_ID = ""
 
     @pytest.mark.dependency()
-    @pytest.mark.test_case("https://jira.steor.tech/browse/VEGA2-491")
+    @pytest.mark.test_case("https://jira.---")
     @allure.title("objects params for add ex")
     def test_get_objects_params(self):
         with aqas.step("Отправка запроса"):
@@ -44,7 +44,7 @@ class TestsCrudExercise:
         TestsCrudExercise.COMMAND_MOVE_ID = objects_params[0]["availableCommands"][0]["id"]
 
     @pytest.mark.dependency(depends=["test_get_objects_params"], scope="class")
-    @pytest.mark.test_case("https://jira.steor.tech/browse/VEGA2-402")
+    @pytest.mark.test_case("https://jira.---")
     @allure.title("create_exercise")
     def test_create_exercise(self):    # noqa: CFQ001
         create_exercise_input = {
@@ -234,7 +234,7 @@ class TestsCrudExercise:
                 compare_dicts(expected_criterion_expressions, actual_criterion_expressions, comp_keys)
 
     @pytest.mark.dependency(depends=["test_create_exercise"], scope="class")
-    @pytest.mark.test_case("https://jira.steor.tech/browse/VEGA2-405")
+    @pytest.mark.test_case("https://jira.---")
     @allure.title("update_exercise")
     def test_update_exercise(self):      # noqa: CFQ001
         with aqas.step("Добавить тэг для упражнения"):
@@ -433,7 +433,7 @@ class TestsCrudExercise:
                 compare_dicts(expected_criterion_expressions, actual_criterion_expressions, comp_keys)
 
     @pytest.mark.dependency(depends=["test_create_exercise"], scope="class")
-    @pytest.mark.test_case("https://jira.steor.tech/browse/VEGA2-408")
+    @pytest.mark.test_case("https://jira.---")
     @allure.title("delete_exercise")
     def test_delete_exercise(self):
         with aqas.step("Отправка запроса с мутацией <removeExerciseById>"):
@@ -441,7 +441,7 @@ class TestsCrudExercise:
         with aqas.step("Проверка наличия ответа"):
             assert result == 1, "Упражнение не удалено"
 
-    @pytest.mark.test_case("https://jira.steor.tech/browse/VEGA2-973")
+    @pytest.mark.test_case("https://jira.---")
     @allure.title("restore_exercise_by_id")
     def test_restore_exercise_by_id(self):
         result = ApiGatewayAdapter().restore_exercise_by_id(int(TestsCrudExercise.EXERCISE_ID))
