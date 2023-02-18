@@ -215,7 +215,7 @@ class TestJerboaExerciseSettings:
 
     @pytest.mark.usefixtures("start_browser")
     @allure.title("shot_wrong_lane_imitator")
-    @pytest.mark.test_case("https://jira.steor.tech/browse/VEGA2-1217")
+    @pytest.mark.test_case("https://jira...")
     def test_shot_wrong_lane_imitator(self, prepare_exercise_api):  # noqa: CFQ001
         """
         Проверка передачи данных о выстреле не в свою полосу из имитатора с широким размером экрана
@@ -335,7 +335,7 @@ class TestJerboaExerciseSettings:
 
     @pytest.mark.usefixtures("start_browser")
     @allure.title("bad_grade_in_redis")
-    @pytest.mark.test_case("https://jira.steor.tech/browse/VEGA2-1329")
+    @pytest.mark.test_case("https://jira...")
     def test_bad_grade_in_redis(self, prepare_exercise_api):
         """
         Проверка передачи данных после завершения упражнения в Redis канал
